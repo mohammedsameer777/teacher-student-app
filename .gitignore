@@ -1,0 +1,45 @@
+# === Python Bytecode ===
+__pycache__/
+*.py[cod]
+*$py.class
+
+# === Django Stuff ===
+*.log
+*.pot
+*.pyc
+*.pyo
+db.sqlite3
+media/
+staticfiles/
+local_settings.py
+.env
+
+# === Environment / Virtual Env ===
+env/
+venv/
+ENV/
+.venv/
+env.bak/
+venv.bak/
+
+# === VS Code ===
+.vscode/
+
+# === MacOS ===
+.DS_Store
+
+# === Ngrok (optional) ===
+ngrok.yml
+ngrok.log
+
+# === Node/NPM (if you ever add frontend build) ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === IDEs ===
+.idea/
+*.sublime-project
+*.sublime-workspace
+
