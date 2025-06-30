@@ -1,3 +1,4 @@
+<!-- register.html -->
 <!DOCTYPE html>
 <html>
 <head><title>Register</title></head>
@@ -26,7 +27,7 @@
           localStorage.setItem("token", data.token);
           window.location.href = "/dashboard/";
         } else {
-          alert("Registration failed");
+          alert("Registration failed. Check your input.");
         }
       });
     }

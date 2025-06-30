@@ -1,131 +1,89 @@
+<!-- dashboard.html -->
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Teacher Dashboard</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    #tabs button { margin: 5px; padding: 10px; }
-    .hidden { display: none; }
-    input { margin: 5px; }
-    li { margin-bottom: 10px; }
-  </style>
-</head>
+<head><title>Dashboard</title></head>
 <body>
-  <h2>Welcome to Teacher Dashboard</h2>
+  <h2>Welcome, Teacher</h2>
+  <button onclick="logout()">Logout</button>
 
-  <div id="tabs">
-    <button onclick="showTab('add')">➕ Add Student</button>
-    <button onclick="showTab('view')">📋 View Students</button>
-    <button onclick="logout()">🚪 Logout</button>
-  </div>
+  <h3>Add Student</h3>
+  <input id="name" placeholder="Name" />
+  <input id="age" type="number" placeholder="Age" />
+  <input id="grade" placeholder="Grade" />
+  <button onclick="addStudent()">Add</button>
 
-  <!-- ✅ Add Student Form -->
-  <div id="add-tab">
-    <h3>Add Student</h3>
-    <input type="text" id="student-name" placeholder="Name">
-    <input type="number" id="student-age" placeholder="Age">
-    <input type="text" id="student-grade" placeholder="Grade">
-    <button onclick="addStudent()">Add</button>
-  </div>
-
-  <!-- ✅ View Students -->
-  <div id="view-tab" class="hidden">
-    <h3>Your Students</h3>
-    <ul id="student-list"></ul>
-  </div>
+  <h3>Students List</h3>
+  <ul id="studentList"></ul>
 
   <script>
-    const token = localStorage.getItem('token');
-    if (!token) window.location.href = "/login/";
-
-    function showTab(tab) {
-      document.getElementById('add-tab').classList.add('hidden');
-      document.getElementById('view-tab').classList.add('hidden');
-      document.getElementById(tab + '-tab').classList.remove('hidden');
-      if (tab === 'view') fetchStudents();
-    }
-
-    function addStudent() {
-      fetch('/api/students/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({
-          name: document.getElementById('student-name').value,
-          age: document.getElementById('student-age').value,
-          grade: document.getElementById('student-grade').value
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert("Student added");
-        showTab('view');
-      });
-    }
-
     function fetchStudents() {
-      fetch('/api/students/', {
+      fetch("/api/students/", {
         headers: {
-          'Authorization': 'Bearer ' + token
-        }
+          "Authorization": "Bearer " + localStorage.getItem("token"),
+        },
       })
       .then(res => res.json())
       .then(data => {
-        const list = document.getElementById('student-list');
-        list.innerHTML = '';
+        const list = document.getElementById("studentList");
+        list.innerHTML = "";
         data.forEach(student => {
-          const li = document.createElement('li');
-          li.innerHTML = `
-            <b>${student.name}</b> (Age: ${student.age}, Grade: ${student.grade})
-            <button onclick="editStudent(${student.id})">✏️ Edit</button>
-            <button onclick="deleteStudent(${student.id})">🗑️ Delete</button>
-          `;
+          const li = document.createElement("li");
+          li.innerHTML = `${student.name} - Age: ${student.age}, Grade: ${student.grade}
+            <button onclick="deleteStudent(${student.id})">Delete</button>
+            <button onclick="editStudent(${student.id}, '${student.name}', ${student.age}, '${student.grade}')">Edit</button>`;
           list.appendChild(li);
         });
       });
     }
 
-    function editStudent(id) {
-      const newName = prompt("New name:");
-      const newAge = prompt("New age:");
-      const newGrade = prompt("New grade:");
-
-      fetch(`/api/students/${id}/`, {
-        method: 'PUT',
+    function addStudent() {
+      fetch("/api/students/", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token"),
         },
-        body: JSON.stringify({ name: newName, age: newAge, grade: newGrade })
+        body: JSON.stringify({
+          name: document.getElementById("name").value,
+          age: parseInt(document.getElementById("age").value),
+          grade: document.getElementById("grade").value,
+        }),
       })
-      .then(() => {
-        alert("Student updated");
-        fetchStudents();
-      });
+      .then(() => fetchStudents());
     }
 
     function deleteStudent(id) {
       fetch(`/api/students/${id}/`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': 'Bearer ' + token
-        }
+          "Authorization": "Bearer " + localStorage.getItem("token"),
+        },
       })
-      .then(() => {
-        alert("Student deleted");
-        fetchStudents();
-      });
+      .then(() => fetchStudents());
+    }
+
+    function editStudent(id, oldName, oldAge, oldGrade) {
+      const name = prompt("New name:", oldName);
+      const age = prompt("New age:", oldAge);
+      const grade = prompt("New grade:", oldGrade);
+      fetch(`/api/students/${id}/`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify({ name, age: parseInt(age), grade }),
+      })
+      .then(() => fetchStudents());
     }
 
     function logout() {
-      localStorage.removeItem('token');
-      window.location.href = "/login/";
+      localStorage.removeItem("token");
+      window.location.href = "/";
     }
 
-    // Show view tab by default
-    showTab('view');
+    // Load students when page loads
+    fetchStudents();
   </script>
 </body>
 </html>

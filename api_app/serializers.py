@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import Teacher, Student
 from django.contrib.auth import authenticate
-from django.contrib.auth.password_validation import validate_password
 
 class TeacherSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,20 +8,23 @@ class TeacherSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'name']
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, validators=[validate_password])
-
     class Meta:
         model = Teacher
         fields = ['email', 'name', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = Teacher(
-            email=validated_data['email'],
-            name=validated_data['name']
-        )
-        user.set_password(validated_data['password'])  # hashes the password
-        user.save()
-        return user
+        return Teacher.objects.create_user(**validated_data)
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(email=data['email'], password=data['password'])
+        if user:
+            return user
+        raise serializers.ValidationError("Invalid credentials")
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:

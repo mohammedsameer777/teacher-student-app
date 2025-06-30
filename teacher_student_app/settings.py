@@ -139,6 +139,9 @@ REST_FRAMEWORK = {
     )
 }
 
-AUTH_USER_MODEL = 'api_app.Teacher'  # Custom Teacher model
-
+AUTH_USER_MODEL = 'api_app.Teacher'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'api_app.backends.EmailBackend',
+]
 STATIC_URL = '/static/'
